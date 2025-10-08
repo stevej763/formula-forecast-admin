@@ -11,11 +11,11 @@ const ConstructorRowDetail = ({ constructor }: ConstructorRowDetailProps) => {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <span className="text-blue-300 text-sm font-medium">Team Name:</span>
-          <p className="text-blue-100">{constructor.name}</p>
+          <p className="text-blue-100">{constructor.teamName}</p>
         </div>
         <div>
           <span className="text-blue-300 text-sm font-medium">Base Location:</span>
-          <p className="text-blue-100">{constructor.nationality}</p>
+          <p className="text-blue-100">{constructor.base}</p>
         </div>
         <div>
           <span className="text-blue-300 text-sm font-medium">Constructor ID:</span>

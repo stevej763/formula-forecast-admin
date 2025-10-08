@@ -6,8 +6,8 @@ interface GetAllConstructorsResponse {
 }
 
 interface CreateConstructorRequest {
-  name: string;
-  nationality: string;
+  teamName: string;
+  base: string;
 }
 
 export const getAllConstructors = async (): Promise<GetAllConstructorsResponse> => {

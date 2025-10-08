@@ -1,29 +1,28 @@
 import type { TableColumn } from "../../../../shared/components/AdminTable";
-import { getCountryNameByCode } from "../../../../shared/utilities/countryCodes";
 
 export interface Constructor {
   constructorUid: string;
-  name: string;
-  nationality: string;
+  teamName: string;
+  base: string;
   // Add other constructor fields as needed
 }
 
 export const constructorColumns: TableColumn<Constructor>[] = [
   {
-    key: 'name',
+    key: 'teamName',
     header: 'Team Name',
     formatter: (constructor: Constructor) => (
       <div className="text-white font-medium">
-        {constructor.name}
+        {constructor.teamName}
       </div>
     )
   },
   {
-    key: 'nationality',
-    header: 'Nationality',
+    key: 'base',
+    header: 'Base Location',
     formatter: (constructor: Constructor) => (
-      <span className="text-blue-200" title={constructor.nationality}>
-        {getCountryNameByCode(constructor.nationality)}
+      <span className="text-blue-200">
+        {constructor.base}
       </span>
     )
   },

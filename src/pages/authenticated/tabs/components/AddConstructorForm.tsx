@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { createConstructor } from "../../../../api/constructorsApiClient";
-import FilterableSelect from "../../../../shared/components/FilterableSelect";
-import { countries } from "../../../../shared/utilities/countryCodes";
 
 interface AddConstructorFormProps {
   onSuccess: () => void;
@@ -9,29 +7,23 @@ interface AddConstructorFormProps {
 }
 
 interface FormData {
-  name: string;
-  nationality: string;
+  teamName: string;
+  base: string;
 }
 
 interface FormErrors {
-  name?: string;
-  nationality?: string;
+  teamName?: string;
+  base?: string;
 }
 
 const AddConstructorForm = ({ onSuccess, onCancel }: AddConstructorFormProps) => {
   const [formData, setFormData] = useState<FormData>({
-    name: "",
-    nationality: "",
+    teamName: "",
+    base: "",
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
-
-  // Prepare country options for FilterableSelect
-  const countryOptions = countries.map(country => ({
-    value: country.code,
-    label: `${country.name} (${country.code})`
-  }));
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -44,12 +36,12 @@ const AddConstructorForm = ({ onSuccess, onCancel }: AddConstructorFormProps) =>
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Team name is required";
+    if (!formData.teamName.trim()) {
+      newErrors.teamName = "Team name is required";
     }
 
-    if (!formData.nationality) {
-      newErrors.nationality = "Nationality is required";
+    if (!formData.base.trim()) {
+      newErrors.base = "Base location is required";
     }
 
     setErrors(newErrors);
@@ -66,14 +58,14 @@ const AddConstructorForm = ({ onSuccess, onCancel }: AddConstructorFormProps) =>
     try {
       setLoading(true);
       await createConstructor({
-        name: formData.name.trim(),
-        nationality: formData.nationality,
+        teamName: formData.teamName.trim(),
+        base: formData.base.trim(),
       });
       onSuccess();
     } catch (err) {
       console.error("Error creating constructor:", err);
       // You might want to show a more specific error message
-      setErrors({ name: "Failed to create constructor. Please try again." });
+      setErrors({ teamName: "Failed to create constructor. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -82,40 +74,44 @@ const AddConstructorForm = ({ onSuccess, onCancel }: AddConstructorFormProps) =>
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-blue-200 mb-2">
+        <label htmlFor="teamName" className="block text-sm font-medium text-blue-200 mb-2">
           Team Name
         </label>
         <input
           type="text"
-          id="name"
-          value={formData.name}
-          onChange={(e) => handleInputChange("name", e.target.value)}
+          id="teamName"
+          value={formData.teamName}
+          onChange={(e) => handleInputChange("teamName", e.target.value)}
           className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.name 
+            errors.teamName 
               ? "border-red-500 focus:ring-red-400" 
               : "border-blue-400/30 focus:ring-blue-400"
           }`}
           placeholder="Enter team name..."
         />
-        {errors.name && (
-          <p className="mt-1 text-red-300 text-xs">{errors.name}</p>
+        {errors.teamName && (
+          <p className="mt-1 text-red-300 text-xs">{errors.teamName}</p>
         )}
       </div>
 
       <div>
-        <label htmlFor="nationality" className="block text-sm font-medium text-blue-200 mb-2">
-          Nationality
+        <label htmlFor="base" className="block text-sm font-medium text-blue-200 mb-2">
+          Base Location
         </label>
-        <FilterableSelect
-          id="nationality"
-          options={countryOptions}
-          value={formData.nationality}
-          onChange={(value) => handleInputChange("nationality", value)}
-          placeholder="Search for a country..."
-          error={!!errors.nationality}
+        <input
+          type="text"
+          id="base"
+          value={formData.base}
+          onChange={(e) => handleInputChange("base", e.target.value)}
+          className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:border-transparent ${
+            errors.base 
+              ? "border-red-500 focus:ring-red-400" 
+              : "border-blue-400/30 focus:ring-blue-400"
+          }`}
+          placeholder="Enter base location..."
         />
-        {errors.nationality && (
-          <p className="mt-1 text-red-300 text-xs">{errors.nationality}</p>
+        {errors.base && (
+          <p className="mt-1 text-red-300 text-xs">{errors.base}</p>
         )}
       </div>
 
