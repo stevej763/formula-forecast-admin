@@ -9,25 +9,17 @@ interface AddSeasonFormProps {
 interface FormData {
   year: string;
   name: string;
-  startDate: string;
-  endDate: string;
-  active: boolean;
 }
 
 interface FormErrors {
   year?: string;
   name?: string;
-  startDate?: string;
-  endDate?: string;
 }
 
 const AddSeasonForm = ({ onSuccess, onCancel }: AddSeasonFormProps) => {
   const [formData, setFormData] = useState<FormData>({
     year: "",
-    name: "",
-    startDate: "",
-    endDate: "",
-    active: false,
+    name: ""
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -36,7 +28,7 @@ const AddSeasonForm = ({ onSuccess, onCancel }: AddSeasonFormProps) => {
   const handleInputChange = (field: keyof FormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
-    if (field !== 'active' && errors[field as keyof FormErrors]) {
+    if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
@@ -51,23 +43,6 @@ const AddSeasonForm = ({ onSuccess, onCancel }: AddSeasonFormProps) => {
 
     if (!formData.name.trim()) {
       newErrors.name = "Season name is required";
-    }
-
-    if (!formData.startDate) {
-      newErrors.startDate = "Start date is required";
-    }
-
-    if (!formData.endDate) {
-      newErrors.endDate = "End date is required";
-    }
-
-    // Check if end date is after start date
-    if (formData.startDate && formData.endDate) {
-      const startDate = new Date(formData.startDate);
-      const endDate = new Date(formData.endDate);
-      if (endDate < startDate) {
-        newErrors.endDate = "End date must be after start date";
-      }
     }
 
     setErrors(newErrors);
@@ -85,10 +60,7 @@ const AddSeasonForm = ({ onSuccess, onCancel }: AddSeasonFormProps) => {
       setLoading(true);
       await createSeason({
         year: parseInt(formData.year),
-        name: formData.name.trim(),
-        startDate: formData.startDate,
-        endDate: formData.endDate,
-        active: formData.active,
+        name: formData.name.trim()
       });
       onSuccess();
     } catch (err) {
@@ -143,59 +115,6 @@ const AddSeasonForm = ({ onSuccess, onCancel }: AddSeasonFormProps) => {
         {errors.name && (
           <p className="mt-1 text-red-300 text-xs">{errors.name}</p>
         )}
-      </div>
-
-      <div>
-        <label htmlFor="startDate" className="block text-sm font-medium text-blue-200 mb-2">
-          Start Date
-        </label>
-        <input
-          type="date"
-          id="startDate"
-          value={formData.startDate}
-          onChange={(e) => handleInputChange("startDate", e.target.value)}
-          className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.startDate 
-              ? "border-red-500 focus:ring-red-400" 
-              : "border-blue-400/30 focus:ring-blue-400"
-          }`}
-        />
-        {errors.startDate && (
-          <p className="mt-1 text-red-300 text-xs">{errors.startDate}</p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="endDate" className="block text-sm font-medium text-blue-200 mb-2">
-          End Date
-        </label>
-        <input
-          type="date"
-          id="endDate"
-          value={formData.endDate}
-          onChange={(e) => handleInputChange("endDate", e.target.value)}
-          className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.endDate 
-              ? "border-red-500 focus:ring-red-400" 
-              : "border-blue-400/30 focus:ring-blue-400"
-          }`}
-        />
-        {errors.endDate && (
-          <p className="mt-1 text-red-300 text-xs">{errors.endDate}</p>
-        )}
-      </div>
-
-      <div className="flex items-center">
-        <input
-          type="checkbox"
-          id="active"
-          checked={formData.active}
-          onChange={(e) => handleInputChange("active", e.target.checked)}
-          className="h-4 w-4 text-blue-600 bg-white/10 border-blue-400/30 rounded focus:ring-blue-400 focus:ring-2"
-        />
-        <label htmlFor="active" className="ml-2 block text-sm text-blue-200">
-          Set as active season
-        </label>
       </div>
 
       <div className="flex justify-end gap-3 pt-4">
