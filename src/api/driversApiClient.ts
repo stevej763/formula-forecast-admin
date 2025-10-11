@@ -1,12 +1,14 @@
 import axiosInstance from "./axiosInstance";
 
-interface Driver {
+export interface Driver {
     driverUid: string;
     firstName: string;
     lastName: string;
     nickname: string;
     nationality: string;
     dateOfBirth: string;
+    constructorUid?: string;
+    teamName?: string;
 }
 
 interface CreateDriverRequest {
@@ -23,6 +25,11 @@ interface DriversResponse {
 
 interface CreateDriverResponse {
   driver: Driver;
+}
+
+interface SetDriverConstructorRequest {
+  driverUid: string;
+  constructorUid: string;
 }
 
 export async function getAllDrivers(): Promise<DriversResponse> {
@@ -42,5 +49,15 @@ export async function createDriver(driverData: CreateDriverRequest): Promise<Cre
   } catch (error: unknown) {
     console.log(error);
     throw new Error("Failed to create driver");
+  }
+}
+
+export async function setDriverConstructor(request: SetDriverConstructorRequest) {
+  try {
+    const response = await axiosInstance.post("/api/v1/driver/set-constructor", request);
+    return response.data;
+  } catch (error: unknown) {
+    console.log(error);
+    throw new Error("Failed to set driver constructor");
   }
 }

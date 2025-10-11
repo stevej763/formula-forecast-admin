@@ -87,7 +87,7 @@ const DriversTab = () => {
         emptyMessage="No drivers found"
         keyExtractor="driverUid"
         expandableContent={(driver) => (
-          <DriverRowDetail driver={driver} />
+          <DriverRowDetail driver={driver} onUpdate={fetchDrivers} />
         )}
       />
 

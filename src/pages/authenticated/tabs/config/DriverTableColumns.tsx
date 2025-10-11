@@ -1,15 +1,6 @@
 import type { TableColumn } from "../../../../shared/components/AdminTable";
 import { getCountryNameByCode } from "../../../../shared/utilities/countryCodes";
-
-export interface Driver {
-  driverUid: string;
-  firstName: string;
-  lastName: string;
-  nickname: string;
-  nationality: string;
-  dateOfBirth: string;
-}
-
+import type { Driver } from "../../../../api/driversApiClient";
 export const driverColumns: TableColumn<Driver>[] = [
   {
     key: 'firstName',
@@ -49,5 +40,23 @@ export const driverColumns: TableColumn<Driver>[] = [
     formatter: (driver: Driver) => (
       <span className="text-gray-400 text-sm font-mono">{driver.driverUid}</span>
     )
+  },
+  {
+    key: 'constructor',
+    header: 'Constructor',
+    formatter: (driver: Driver) => {
+      if (driver.constructorUid && driver.teamName) {
+        return (
+          <span className="text-blue-200" title={driver.constructorUid}>
+            {driver.teamName}
+          </span>
+        );
+      } else {
+        return (
+          <span className="text-gray-500 italic">Not Set</span>
+        );
+      }
+    }
+
   }
 ];
