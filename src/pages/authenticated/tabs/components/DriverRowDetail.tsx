@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Driver } from "../config/DriverTableColumns";
+import type { Driver } from '../../../../api/driversApiClient';
 import SetConstructorModal from './SetConstructorModal';
 
 interface DriverRowDetailProps {

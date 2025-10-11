@@ -4,7 +4,7 @@ import { setDriverConstructor } from '../../../../api/driversApiClient';
 import Modal from '../../../../shared/components/Modal';
 import LoaderSpinner from '../../../../shared/components/LoaderSpinner';
 import type { Constructor } from '../config/ConstructorTableColumns';
-import type { Driver } from '../config/DriverTableColumns';
+import type { Driver } from '../../../../api/driversApiClient';
 
 interface SetConstructorModalProps {
   isOpen: boolean;

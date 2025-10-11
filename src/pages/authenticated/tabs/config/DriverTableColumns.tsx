@@ -1,7 +1,10 @@
 import type { TableColumn } from "../../../../shared/components/AdminTable";
 import { getCountryNameByCode } from "../../../../shared/utilities/countryCodes";
+
 import type { Driver } from "../../../../api/driversApiClient";
+
 export const driverColumns: TableColumn<Driver>[] = [
+
   {
     key: 'firstName',
     header: 'Name',

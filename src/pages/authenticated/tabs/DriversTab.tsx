@@ -5,7 +5,8 @@ import AdminTable from "../../../shared/components/AdminTable";
 import Modal from "../../../shared/components/Modal";
 import AddDriverForm from "./components/AddDriverForm";
 import DriverRowDetail from "./components/DriverRowDetail";
-import { driverColumns, type Driver } from "./config/DriverTableColumns";
+import { driverColumns } from "./config/DriverTableColumns";
+import type { Driver } from "../../../api/driversApiClient";
 
 const DriversTab = () => {
   const [drivers, setDrivers] = useState<Driver[]>([]);
