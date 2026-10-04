@@ -1,40 +1,40 @@
 export type PracticeSessionResponse = {
   practiceSessionUid: string;
   sessionNumber: number;
-  sessionDate: string; // ISO date string
+  startsAt: string; // ISO datetime string
 };
 
 export type QualifyingResponse = {
   qualifyingSessionUid: string;
-  sessionDate: string; // ISO date string
+  startsAt: string; // ISO datetime string
 };
 
 export type SprintResponse = {
   sprintSessionUid: string;
-  sessionDate: string; // ISO date string
+  startsAt: string; // ISO datetime string
 };
 
 export type RaceResponse = {
   raceSessionUid: string;
-  sessionDate: string; // ISO date string
+  startsAt: string; // ISO datetime string
 };
 
 export type RaceWeekendStatus = "UPCOMING" | "RACE_WEEK" | "LIVE" | "COMPLETE";
 
 export type RaceWeekend = {
   raceWeekendUid: string;
+  roundNumber: number;
   raceName: string;
   raceLocation: string;
   practiceSessions: Array<PracticeSessionResponse>;
   qualifying: QualifyingResponse;
   sprintResponse?: SprintResponse;
   raceResponse: RaceResponse;
-  complete: boolean;
-  liveWeekend: boolean;
   raceWeekendStartDate: string; // ISO date string
   raceWeekendEndDate: string; // ISO date string
   raceWeekendStatus: RaceWeekendStatus; // e.g. "UPCOMING", "LIVE", "COMPLETED"
   raceWeekendStatusTimestamp: string; // ISO datetime string
+  predictionsLockAt: string; // ISO datetime string, when qualifying starts
 };
 
 export type RaceWeekendResponse = {
@@ -102,6 +102,8 @@ export interface CreateRaceWeekendRequest {
   raceLocation: string;
   raceWeekendStartDate: string;
   raceWeekendEndDate: string;
+  qualifyingStartsAt: string; // ISO datetime string
+  raceStartsAt: string; // ISO datetime string
 }
 
 export async function createRaceWeekend(raceWeekend: CreateRaceWeekendRequest): Promise<RaceWeekend> {

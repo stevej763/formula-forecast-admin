@@ -13,6 +13,8 @@ interface FormData {
   raceLocation: string;
   raceWeekendStartDate: string;
   raceWeekendEndDate: string;
+  qualifyingStartsAt: string;
+  raceStartsAt: string;
 }
 
 interface FormErrors {
@@ -20,8 +22,15 @@ interface FormErrors {
   raceLocation?: string;
   raceWeekendStartDate?: string;
   raceWeekendEndDate?: string;
+  qualifyingStartsAt?: string;
+  raceStartsAt?: string;
   general?: string;
 }
+
+/** The admin's timezone, shown next to session times because qualifying start decides when picks lock. */
+const LOCAL_TIMEZONE = new Intl.DateTimeFormat("en-GB", { timeZoneName: "short" })
+  .formatToParts(new Date())
+  .find((part) => part.type === "timeZoneName")?.value;
 
 const AddRaceWeekendForm = ({ onSuccess, onCancel }: AddRaceWeekendFormProps) => {
   const [formData, setFormData] = useState<FormData>({
@@ -29,6 +38,8 @@ const AddRaceWeekendForm = ({ onSuccess, onCancel }: AddRaceWeekendFormProps) =>
     raceLocation: "",
     raceWeekendStartDate: "",
     raceWeekendEndDate: "",
+    qualifyingStartsAt: "",
+    raceStartsAt: "",
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -70,6 +81,19 @@ const AddRaceWeekendForm = ({ onSuccess, onCancel }: AddRaceWeekendFormProps) =>
       }
     }
 
+    if (!formData.qualifyingStartsAt) {
+      newErrors.qualifyingStartsAt = "Qualifying start is required";
+    }
+
+    if (!formData.raceStartsAt) {
+      newErrors.raceStartsAt = "Race start is required";
+    }
+
+    if (formData.qualifyingStartsAt && formData.raceStartsAt
+      && new Date(formData.raceStartsAt) <= new Date(formData.qualifyingStartsAt)) {
+      newErrors.raceStartsAt = "Race must start after qualifying";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -88,6 +112,9 @@ const AddRaceWeekendForm = ({ onSuccess, onCancel }: AddRaceWeekendFormProps) =>
         raceLocation: formData.raceLocation.trim(),
         raceWeekendStartDate: formData.raceWeekendStartDate,
         raceWeekendEndDate: formData.raceWeekendEndDate,
+        // datetime-local values are in the admin's timezone; send them as UTC instants
+        qualifyingStartsAt: new Date(formData.qualifyingStartsAt).toISOString(),
+        raceStartsAt: new Date(formData.raceStartsAt).toISOString(),
       };
       await createRaceWeekend(requestData);
       onSuccess();
@@ -136,6 +163,25 @@ const AddRaceWeekendForm = ({ onSuccess, onCancel }: AddRaceWeekendFormProps) =>
           error={errors.raceWeekendEndDate}
         />
       </div>
+      <div className="grid grid-cols-2 gap-4">
+        <TextField
+          id="qualifyingStartsAt"
+          label={`Qualifying starts (${LOCAL_TIMEZONE})`}
+          type="datetime-local"
+          value={formData.qualifyingStartsAt}
+          onChange={(e) => handleInputChange("qualifyingStartsAt", e.target.value)}
+          error={errors.qualifyingStartsAt}
+        />
+        <TextField
+          id="raceStartsAt"
+          label={`Race starts (${LOCAL_TIMEZONE})`}
+          type="datetime-local"
+          value={formData.raceStartsAt}
+          onChange={(e) => handleInputChange("raceStartsAt", e.target.value)}
+          error={errors.raceStartsAt}
+        />
+      </div>
+      <p className="text-sm text-ash">Picks lock when qualifying starts.</p>
       <FormActions
         submitLabel="Add race weekend"
         submittingLabel="Adding race weekend…"

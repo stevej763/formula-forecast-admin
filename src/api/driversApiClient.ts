@@ -42,6 +42,17 @@ export async function getAllDrivers(): Promise<DriversResponse> {
   }
 }
 
+/** Drivers on the grid for the current season. */
+export async function getActiveDrivers(): Promise<DriversResponse> {
+  try {
+    const response = await axiosInstance.get("/api/v1/driver/all/active");
+    return response.data;
+  } catch (error: unknown) {
+    console.log(error);
+    throw new Error("Failed to fetch drivers");
+  }
+}
+
 export async function createDriver(driverData: CreateDriverRequest): Promise<CreateDriverResponse> {
   try {
     const response = await axiosInstance.post("/api/v1/driver/create", driverData);

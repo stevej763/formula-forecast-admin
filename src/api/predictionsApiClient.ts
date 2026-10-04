@@ -11,6 +11,8 @@ export interface PredictionType {
     predictionTypeUid: string;
     predictionType: string;
     description: string;
+    /** How many ranked picks the type takes: 1 for a single driver, 3 for a top three. */
+    selectionCount: number;
 }   
 
 export type PredictionTypes = {
