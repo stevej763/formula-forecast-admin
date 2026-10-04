@@ -1,7 +1,7 @@
 export default function LoaderSpinner() {
   return (
-    <div className="p-4 flex justify-center items-center">
-      <span className="animate-spin inline-block h-6 w-6 border-4 border-t-red-400 border-gray-200 rounded-full"></span>
+    <div className="flex items-center justify-center p-4" role="status" aria-label="Loading">
+      <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-graphite border-t-chalk" />
     </div>
   );
 }

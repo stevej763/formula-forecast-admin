@@ -1,65 +1,42 @@
 import type { TableColumn } from "../../../../shared/components/AdminTable";
 import { getCountryNameByCode } from "../../../../shared/utilities/countryCodes";
-
+import { formatDay } from "../../../../shared/utilities/formatDate";
 import type { Driver } from "../../../../api/driversApiClient";
 
 export const driverColumns: TableColumn<Driver>[] = [
-
   {
-    key: 'firstName',
-    header: 'Name',
+    key: "lastName",
+    header: "Driver",
     formatter: (driver: Driver) => (
-      <div className="text-white font-medium">
-        {driver.firstName} {driver.lastName}
-      </div>
-    )
+      <span className="flex items-baseline gap-2">
+        <span className="font-display text-lg">{driver.lastName}</span>
+        <span className="text-ash">{driver.firstName}</span>
+      </span>
+    ),
   },
   {
-    key: 'nickname',
-    header: 'Nickname',
-    formatter: (driver: Driver) => (
-      <span className="text-blue-200">{driver.nickname}</span>
-    )
+    key: "constructor",
+    header: "Team",
+    // A driver without a team can't score, so it's the one thing flagged in red.
+    formatter: (driver: Driver) =>
+      driver.constructorUid && driver.teamName ? (
+        <span>{driver.teamName}</span>
+      ) : (
+        <span className="font-medium text-signal">No team</span>
+      ),
   },
   {
-    key: 'nationality',
-    header: 'Nationality',
+    key: "nationality",
+    header: "Nationality",
     formatter: (driver: Driver) => (
-      <span className="text-blue-200" title={driver.nationality}>
+      <span className="text-ash" title={driver.nationality}>
         {getCountryNameByCode(driver.nationality)}
       </span>
-    )
+    ),
   },
   {
-    key: 'dateOfBirth',
-    header: 'Date of Birth',
-    formatter: (driver: Driver) => (
-      <span className="text-blue-200">{new Date(driver.dateOfBirth).toLocaleDateString()}</span>
-    )
+    key: "dateOfBirth",
+    header: "Born",
+    formatter: (driver: Driver) => <span className="text-ash">{formatDay(driver.dateOfBirth)}</span>,
   },
-  {
-    key: 'driverUid',
-    header: 'Driver UID',
-    formatter: (driver: Driver) => (
-      <span className="text-gray-400 text-sm font-mono">{driver.driverUid}</span>
-    )
-  },
-  {
-    key: 'constructor',
-    header: 'Constructor',
-    formatter: (driver: Driver) => {
-      if (driver.constructorUid && driver.teamName) {
-        return (
-          <span className="text-blue-200" title={driver.constructorUid}>
-            {driver.teamName}
-          </span>
-        );
-      } else {
-        return (
-          <span className="text-gray-500 italic">Not Set</span>
-        );
-      }
-    }
-
-  }
 ];

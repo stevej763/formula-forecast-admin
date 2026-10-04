@@ -13,6 +13,7 @@ interface FilterableSelectProps {
   className?: string;
   error?: boolean;
   id?: string;
+  emptyMessage?: string;
 }
 
 const FilterableSelect = ({
@@ -22,7 +23,8 @@ const FilterableSelect = ({
   placeholder = "Select an option...",
   className = "",
   error = false,
-  id
+  id,
+  emptyMessage = "No matches"
 }: FilterableSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState("");
@@ -123,10 +125,13 @@ const FilterableSelect = ({
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}
         placeholder={placeholder}
-        className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:border-transparent ${
-          error 
-            ? "border-red-500 focus:ring-red-400" 
-            : "border-blue-400/30 focus:ring-blue-400"
+        role="combobox"
+        aria-expanded={isOpen}
+        aria-controls={id ? `${id}-listbox` : undefined}
+        aria-autocomplete="list"
+        aria-invalid={error}
+        className={`h-10 w-full rounded-md border bg-carbon pr-9 pl-3 text-chalk placeholder:text-ash/70 focus:outline-none ${
+          error ? "border-signal" : "border-graphite focus:border-chalk"
         } ${className}`}
         autoComplete="off"
       />
@@ -134,7 +139,7 @@ const FilterableSelect = ({
       {/* Dropdown arrow */}
       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
         <svg 
-          className={`w-4 h-4 text-blue-200 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 text-ash transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none" 
           stroke="currentColor" 
           viewBox="0 0 24 24"
@@ -145,26 +150,24 @@ const FilterableSelect = ({
 
       {/* Dropdown list */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-blue-500/30 rounded-lg shadow-lg max-h-60 overflow-auto">
-          <ul ref={listRef} className="py-1">
+        <div className="ff-scrollbar absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-graphite bg-black">
+          <ul ref={listRef} id={id ? `${id}-listbox` : undefined} role="listbox" className="py-1">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option, index) => (
                 <li
                   key={option.value}
+                  role="option"
+                  aria-selected={option.value === value}
                   onClick={() => handleOptionClick(option.value)}
-                  className={`px-3 py-2 cursor-pointer text-sm transition-colors ${
-                    index === highlightedIndex
-                      ? "bg-blue-600 text-white"
-                      : "text-blue-200 hover:bg-blue-700/50 hover:text-white"
+                  className={`cursor-pointer px-3 py-2 text-sm ${
+                    index === highlightedIndex ? "bg-graphite text-chalk" : "text-chalk hover:bg-carbon"
                   }`}
                 >
                   {option.label}
                 </li>
               ))
             ) : (
-              <li className="px-3 py-2 text-sm text-gray-400">
-                No countries found
-              </li>
+              <li className="px-3 py-2 text-sm text-ash">{emptyMessage}</li>
             )}
           </ul>
         </div>

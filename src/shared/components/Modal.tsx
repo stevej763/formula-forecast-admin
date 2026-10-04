@@ -1,76 +1,57 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
+  description?: string;
   children: ReactNode;
-  size?: "sm" | "md" | "lg" | "xl";
 }
 
-const Modal = ({ isOpen, onClose, title, children, size = "md" }: ModalProps) => {
+/**
+ * Side panel that slides in from the right, so the list it came from stays
+ * visible. Built on the native <dialog> for focus trapping, Escape to close
+ * and an inert background.
+ */
+const Modal = ({ isOpen, onClose, title, description, children }: ModalProps) => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
   useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  const sizeClasses = {
-    sm: "max-w-md",
-    md: "max-w-lg",
-    lg: "max-w-2xl",
-    xl: "max-w-4xl"
-  };
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (isOpen && !dialog.open) dialog.showModal();
+    if (!isOpen && dialog.open) dialog.close();
+  }, [isOpen]);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/50 transition-opacity"
-        onClick={onClose}
-      />
-      
-      {/* Modal */}
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div 
-          className={`relative w-full ${sizeClasses[size]} transform overflow-hidden rounded-lg bg-white/10 backdrop-blur-sm border border-blue-500/30 shadow-xl transition-all`}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-blue-500/30">
-            <h3 className="text-lg font-semibold text-white">
-              {title}
-            </h3>
-            <button
-              onClick={onClose}
-              className="text-blue-200 hover:text-white transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          
-          {/* Content */}
-          <div className="p-6">
-            {children}
-          </div>
+    <dialog
+      ref={dialogRef}
+      aria-labelledby="panel-title"
+      onClose={onClose}
+      onClick={(e) => {
+        if (e.target === dialogRef.current) onClose();
+      }}
+      className="my-0 mr-0 ml-auto flex h-dvh max-h-dvh w-full max-w-md flex-col border-l border-graphite bg-carbon p-0 text-chalk open:animate-[ff-panel-in_180ms_ease-out] [&:not([open])]:hidden"
+    >
+      <header className="flex items-start gap-4 border-b border-graphite px-6 py-5">
+        <div className="min-w-0 flex-1">
+          <h2 id="panel-title" className="font-heading text-xl">
+            {title}
+          </h2>
+          {description && <p className="mt-1 text-sm text-ash">{description}</p>}
         </div>
-      </div>
-    </div>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="-mt-1 -mr-2 rounded-md p-2 text-ash hover:bg-graphite hover:text-chalk"
+        >
+          <XMarkIcon className="h-5 w-5" />
+        </button>
+      </header>
+      <div className="ff-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-6">{isOpen && children}</div>
+    </dialog>
   );
 };
 

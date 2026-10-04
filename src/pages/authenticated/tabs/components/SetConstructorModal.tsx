@@ -3,6 +3,7 @@ import { getAllConstructors } from '../../../../api/constructorsApiClient';
 import { setDriverConstructor } from '../../../../api/driversApiClient';
 import Modal from '../../../../shared/components/Modal';
 import LoaderSpinner from '../../../../shared/components/LoaderSpinner';
+import FormActions, { FormError } from '../../../../shared/components/FormActions';
 import type { Constructor } from '../config/ConstructorTableColumns';
 import type { Driver } from '../../../../api/driversApiClient';
 
@@ -33,7 +34,7 @@ const SetConstructorModal = ({ isOpen, onClose, driver, onSuccess }: SetConstruc
       const response = await getAllConstructors();
       setConstructors(response.constructors);
     } catch (err) {
-      setError('Failed to load constructors');
+      setError("Couldn't load the constructor list. Close this panel and try again.");
       console.error('Error fetching constructors:', err);
     } finally {
       setLoading(false);
@@ -44,7 +45,7 @@ const SetConstructorModal = ({ isOpen, onClose, driver, onSuccess }: SetConstruc
     e.preventDefault();
     
     if (!selectedConstructorUid) {
-      setError('Please select a constructor');
+      setError('Choose a team.');
       return;
     }
 
@@ -61,7 +62,7 @@ const SetConstructorModal = ({ isOpen, onClose, driver, onSuccess }: SetConstruc
       onClose();
       setSelectedConstructorUid('');
     } catch (err) {
-      setError('Failed to set constructor team');
+      setError("The team wasn't saved. Try again, and check the API logs if it keeps failing.");
       console.error('Error setting constructor:', err);
     } finally {
       setSubmitting(false);
@@ -75,65 +76,49 @@ const SetConstructorModal = ({ isOpen, onClose, driver, onSuccess }: SetConstruc
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Set Constructor Team" size="md">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="mb-4">
-          <p className="text-blue-200 text-sm mb-2">
-            Select which constructor team <span className="font-medium text-white">{driver.firstName} {driver.lastName}</span> races for:
-          </p>
-        </div>
-
-        {error && (
-          <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={`Set team for ${driver.firstName} ${driver.lastName}`}
+      description="Players' points for this driver count towards the team you choose."
+    >
+      <form onSubmit={handleSubmit} noValidate className="space-y-5">
+        <FormError message={error} />
 
         {loading ? (
-          <div className="flex justify-center py-8">
-            <LoaderSpinner />
-          </div>
+          <LoaderSpinner />
         ) : (
-          <div>
-            <label htmlFor="constructor" className="block text-sm font-medium text-blue-200 mb-2">
-              Constructor Team
-            </label>
-            <select
-              id="constructor"
-              value={selectedConstructorUid}
-              onChange={(e) => setSelectedConstructorUid(e.target.value)}
-              className="w-full px-3 py-2 bg-white/10 border border-blue-400/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-              required
-            >
-              <option value="" className="bg-gray-800 text-gray-300">Select a constructor...</option>
+          <fieldset>
+            <legend className="mb-2 text-sm font-medium">Team</legend>
+            <div className="divide-y divide-graphite border-y border-graphite">
               {constructors.map((constructor) => (
-                <option key={constructor.constructorUid} value={constructor.constructorUid} className="bg-gray-800 text-white">
-                  {constructor.teamName} ({constructor.base})
-                </option>
+                <label
+                  key={constructor.constructorUid}
+                  className="flex cursor-pointer items-center gap-3 py-3 has-[:checked]:text-chalk"
+                >
+                  <input
+                    type="radio"
+                    name="constructor"
+                    value={constructor.constructorUid}
+                    checked={selectedConstructorUid === constructor.constructorUid}
+                    onChange={(e) => setSelectedConstructorUid(e.target.value)}
+                    className="h-4 w-4 accent-signal"
+                  />
+                  <span className="flex-1 font-medium">{constructor.teamName}</span>
+                  <span className="text-sm text-ash">{constructor.base}</span>
+                </label>
               ))}
-            </select>
-          </div>
+            </div>
+          </fieldset>
         )}
 
-        <div className="flex gap-3 pt-4">
-          <button
-            type="submit"
-            disabled={submitting || loading || !selectedConstructorUid}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-          >
-            {submitting && (
-              <div className="animate-spin inline-block h-4 w-4 border-2 border-t-white border-white/30 rounded-full"></div>
-            )}
-            {submitting ? 'Setting Team...' : 'Set Constructor Team'}
-          </button>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
+        <FormActions
+          submitLabel="Set team"
+          submittingLabel="Setting team…"
+          submitting={submitting}
+          disabled={loading || !selectedConstructorUid}
+          onCancel={handleClose}
+        />
       </form>
     </Modal>
   );

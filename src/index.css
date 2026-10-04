@@ -1,60 +1,84 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Formula Forecast tokens, shared with the player app.
+ * In the admin, red means "act on this": the primary action, missing data
+ * and the production warning. If nothing on screen is red, setup is complete.
+ */
+@theme {
+  --color-black: #000000;
+  --color-carbon: #141417;
+  --color-graphite: #2a2a30;
+  --color-ash: #8e8e96;
+  --color-chalk: #f2f2ee;
+  --color-signal: #e3202b;
+  --color-signal-press: #b8141e;
+
+  --font-sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Wide uppercase face for surnames and race names, after F1 broadcast type. */
+@utility font-display {
+  font-stretch: 125%;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Slightly widened face for section headings. */
+@utility font-heading {
+  font-stretch: 112%;
+  font-weight: 650;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--color-black);
+    color: var(--color-chalk);
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-chalk);
+    outline-offset: 2px;
+  }
+
+  dialog::backdrop {
+    background: rgb(0 0 0 / 0.72);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes ff-panel-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 /* Transparent / minimal scrollbar utility */
 .ff-scrollbar {
-  scrollbar-width: thin; /* Firefox */
-  scrollbar-color: rgba(255,255,255,0.25) transparent; /* thumb + track */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-graphite) transparent;
 }
-
-/* WebKit */
-.ff-scrollbar::-webkit-scrollbar {
-  width: 8px;
-}
-.ff-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.ff-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.35),
-    rgba(255,255,255,0.15)
-  );
-  border-radius: 9999px;
-  border: 2px solid transparent; /* creates inset look */
-  background-clip: content-box;
-}
-.ff-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.5),
-    rgba(255,255,255,0.25)
-  );
-}
-
-/* Optional: hide horizontal scrollbar if not needed */
-.ff-scrollbar::-webkit-scrollbar:horizontal { height: 6px; }

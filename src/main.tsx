@@ -3,26 +3,36 @@ import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import { store } from "./store";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePage from "./pages/authenticated/HomePage";
+import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import RequireAuth from "./RequireAuth";
 import "./index.css";
-import LandingPage from "./pages/unauthenticated/LandingPage";
+import SignInPage from "./pages/unauthenticated/SignInPage";
+import AdminLayout from "./pages/authenticated/AdminLayout";
+import SeasonTab from "./pages/authenticated/tabs/SeasonTab";
+import ConstructorsTab from "./pages/authenticated/tabs/ConstructorsTab";
+import DriversTab from "./pages/authenticated/tabs/DriversTab";
+import RaceWeekendsTab from "./pages/authenticated/tabs/RaceWeekendsTab";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<SignInPage />} />
           <Route
-            path="/home"
             element={
               <RequireAuth>
-                <HomePage />
+                <AdminLayout />
               </RequireAuth>
             }
-          />
+          >
+            <Route path="/season" element={<SeasonTab />} />
+            <Route path="/constructors" element={<ConstructorsTab />} />
+            <Route path="/drivers" element={<DriversTab />} />
+            <Route path="/weekends" element={<RaceWeekendsTab />} />
+          </Route>
+          <Route path="/home" element={<Navigate to="/weekends" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </Provider>

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import TextField from "../../../../shared/components/TextField";
+import FormActions, { FormError } from "../../../../shared/components/FormActions";
 import { createConstructor } from "../../../../api/constructorsApiClient";
 
 interface AddConstructorFormProps {
@@ -14,6 +16,7 @@ interface FormData {
 interface FormErrors {
   teamName?: string;
   base?: string;
+  general?: string;
 }
 
 const AddConstructorForm = ({ onSuccess, onCancel }: AddConstructorFormProps) => {
@@ -65,75 +68,37 @@ const AddConstructorForm = ({ onSuccess, onCancel }: AddConstructorFormProps) =>
     } catch (err) {
       console.error("Error creating constructor:", err);
       // You might want to show a more specific error message
-      setErrors({ teamName: "Failed to create constructor. Please try again." });
+      setErrors({ general: "The constructor wasn't saved. Try again, and check the API logs if it keeps failing." });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="teamName" className="block text-sm font-medium text-blue-200 mb-2">
-          Team Name
-        </label>
-        <input
-          type="text"
-          id="teamName"
-          value={formData.teamName}
-          onChange={(e) => handleInputChange("teamName", e.target.value)}
-          className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.teamName 
-              ? "border-red-500 focus:ring-red-400" 
-              : "border-blue-400/30 focus:ring-blue-400"
-          }`}
-          placeholder="Enter team name..."
-        />
-        {errors.teamName && (
-          <p className="mt-1 text-red-300 text-xs">{errors.teamName}</p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="base" className="block text-sm font-medium text-blue-200 mb-2">
-          Base Location
-        </label>
-        <input
-          type="text"
-          id="base"
-          value={formData.base}
-          onChange={(e) => handleInputChange("base", e.target.value)}
-          className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.base 
-              ? "border-red-500 focus:ring-red-400" 
-              : "border-blue-400/30 focus:ring-blue-400"
-          }`}
-          placeholder="Enter base location..."
-        />
-        {errors.base && (
-          <p className="mt-1 text-red-300 text-xs">{errors.base}</p>
-        )}
-      </div>
-
-      <div className="flex justify-end gap-3 pt-4">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-lg transition-colors duration-150"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white text-sm rounded-lg transition-colors duration-150 flex items-center gap-2"
-        >
-          {loading && (
-            <div className="animate-spin inline-block h-4 w-4 border-2 border-t-white border-white/30 rounded-full"></div>
-          )}
-          {loading ? "Creating..." : "Create Constructor"}
-        </button>
-      </div>
+    <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      <FormError message={errors.general} />
+      <TextField
+        id="teamName"
+        label="Team name"
+        placeholder="McLaren"
+        value={formData.teamName}
+        onChange={(e) => handleInputChange("teamName", e.target.value)}
+        error={errors.teamName}
+      />
+      <TextField
+        id="base"
+        label="Base"
+        placeholder="Woking, United Kingdom"
+        value={formData.base}
+        onChange={(e) => handleInputChange("base", e.target.value)}
+        error={errors.base}
+      />
+      <FormActions
+        submitLabel="Add constructor"
+        submittingLabel="Adding constructor…"
+        submitting={loading}
+        onCancel={onCancel}
+      />
     </form>
   );
 };

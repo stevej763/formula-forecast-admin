@@ -3,26 +3,13 @@ import type { Season } from "../../../../api/seasonApiClient";
 
 export const seasonColumns: TableColumn<Season>[] = [
   {
-    key: 'championshipYear',
-    header: 'Year',
-    formatter: (season: Season) => (
-      <div className="text-white font-medium">
-        {season.championshipYear}
-      </div>
-    )
+    key: "championshipYear",
+    header: "Year",
+    formatter: (season: Season) => <span className="font-display text-xl">{season.championshipYear}</span>,
   },
   {
-    key: 'championshipName',
-    header: 'Season Name',
-    formatter: (season: Season) => (
-      <span className="text-blue-200">{season.championshipName}</span>
-    )
+    key: "championshipName",
+    header: "Name",
+    formatter: (season: Season) => <span>{season.championshipName}</span>,
   },
-  {
-    key: 'championshipSeasonUid',
-    header: 'Season UID',
-    formatter: (season: Season) => (
-      <span className="text-gray-400 text-sm font-mono">{season.championshipSeasonUid}</span>
-    )
-  }
 ];

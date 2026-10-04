@@ -1,4 +1,6 @@
 import { useState } from "react";
+import TextField from "../../../../shared/components/TextField";
+import FormActions, { FormError } from "../../../../shared/components/FormActions";
 import { createDriver } from "../../../../api/driversApiClient";
 import { countries } from "../../../../shared/utilities/countryCodes";
 import FilterableSelect from "../../../../shared/components/FilterableSelect";
@@ -99,87 +101,40 @@ const AddDriverForm = ({ onSuccess, onCancel }: AddDriverFormProps) => {
       onSuccess();
     } catch (error: unknown) {
       console.error("Failed to create driver:", error);
-      setErrors({ general: "Failed to create driver. Please try again." });
+      setErrors({ general: "The driver wasn't saved. Try again, and check the API logs if it keeps failing." });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {errors.general && (
-        <div className="p-3 bg-red-900/30 border border-red-500/50 rounded-lg">
-          <p className="text-red-300 text-sm">{errors.general}</p>
-        </div>
-      )}
-
+    <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      <FormError message={errors.general} />
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="firstName" className="block text-sm font-medium text-blue-200 mb-2">
-            First Name
-          </label>
-          <input
-            type="text"
-            id="firstName"
-            value={formData.firstName}
-            onChange={(e) => handleInputChange("firstName", e.target.value)}
-            className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:border-transparent ${
-              errors.firstName 
-                ? "border-red-500 focus:ring-red-400" 
-                : "border-blue-400/30 focus:ring-blue-400"
-            }`}
-            placeholder="Enter first name"
-          />
-          {errors.firstName && (
-            <p className="mt-1 text-red-300 text-xs">{errors.firstName}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="lastName" className="block text-sm font-medium text-blue-200 mb-2">
-            Last Name
-          </label>
-          <input
-            type="text"
-            id="lastName"
-            value={formData.lastName}
-            onChange={(e) => handleInputChange("lastName", e.target.value)}
-            className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:border-transparent ${
-              errors.lastName 
-                ? "border-red-500 focus:ring-red-400" 
-                : "border-blue-400/30 focus:ring-blue-400"
-            }`}
-            placeholder="Enter last name"
-          />
-          {errors.lastName && (
-            <p className="mt-1 text-red-300 text-xs">{errors.lastName}</p>
-          )}
-        </div>
-      </div>
-
-      <div>
-        <label htmlFor="nickname" className="block text-sm font-medium text-blue-200 mb-2">
-          Nickname
-        </label>
-        <input
-          type="text"
-          id="nickname"
-          value={formData.nickname}
-          onChange={(e) => handleInputChange("nickname", e.target.value)}
-          className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.nickname 
-              ? "border-red-500 focus:ring-red-400" 
-              : "border-blue-400/30 focus:ring-blue-400"
-          }`}
-          placeholder="Enter nickname"
+        <TextField
+          id="firstName"
+          label="First name"
+          value={formData.firstName}
+          onChange={(e) => handleInputChange("firstName", e.target.value)}
+          error={errors.firstName}
         />
-        {errors.nickname && (
-          <p className="mt-1 text-red-300 text-xs">{errors.nickname}</p>
-        )}
+        <TextField
+          id="lastName"
+          label="Last name"
+          value={formData.lastName}
+          onChange={(e) => handleInputChange("lastName", e.target.value)}
+          error={errors.lastName}
+        />
       </div>
-
+      <TextField
+        id="nickname"
+        label="Nickname"
+        value={formData.nickname}
+        onChange={(e) => handleInputChange("nickname", e.target.value)}
+        error={errors.nickname}
+      />
       <div>
-        <label htmlFor="nationality" className="block text-sm font-medium text-blue-200 mb-2">
+        <label htmlFor="nationality" className="mb-1.5 block text-sm font-medium">
           Nationality
         </label>
         <FilterableSelect
@@ -187,51 +142,26 @@ const AddDriverForm = ({ onSuccess, onCancel }: AddDriverFormProps) => {
           options={countryOptions}
           value={formData.nationality}
           onChange={(value) => handleInputChange("nationality", value)}
-          placeholder="Search for a country..."
+          placeholder="Search countries"
+          emptyMessage="No matching countries"
           error={!!errors.nationality}
         />
-        {errors.nationality && (
-          <p className="mt-1 text-red-300 text-xs">{errors.nationality}</p>
-        )}
+        {errors.nationality && <p className="mt-1.5 text-sm text-signal">{errors.nationality}</p>}
       </div>
-
-      <div>
-        <label htmlFor="dateOfBirth" className="block text-sm font-medium text-blue-200 mb-2">
-          Date of Birth
-        </label>
-        <input
-          type="date"
-          id="dateOfBirth"
-          value={formData.dateOfBirth}
-          onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
-          className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white placeholder-blue-200/50 focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.dateOfBirth 
-              ? "border-red-500 focus:ring-red-400" 
-              : "border-blue-400/30 focus:ring-blue-400"
-          }`}
-        />
-        {errors.dateOfBirth && (
-          <p className="mt-1 text-red-300 text-xs">{errors.dateOfBirth}</p>
-        )}
-      </div>
-
-      <div className="flex justify-end gap-3 pt-4">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 text-blue-200 hover:text-white transition-colors"
-          disabled={isSubmitting}
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors duration-150"
-        >
-          {isSubmitting ? "Creating..." : "Create Driver"}
-        </button>
-      </div>
+      <TextField
+        id="dateOfBirth"
+        label="Date of birth"
+        type="date"
+        value={formData.dateOfBirth}
+        onChange={(e) => handleInputChange("dateOfBirth", e.target.value)}
+        error={errors.dateOfBirth}
+      />
+      <FormActions
+        submitLabel="Add driver"
+        submittingLabel="Adding driver…"
+        submitting={isSubmitting}
+        onCancel={onCancel}
+      />
     </form>
   );
 };

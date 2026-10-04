@@ -1,4 +1,5 @@
 import { useState, Fragment, type ReactNode } from "react";
+import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
 export interface TableColumn<T> {
   key: keyof T | string;
@@ -16,18 +17,18 @@ interface AdminTableProps<T> {
   onRowClick?: (item: T) => void;
 }
 
-const AdminTable = <T,>({ 
-  data, 
-  columns, 
-  emptyMessage = "No data found",
+const AdminTable = <T,>({
+  data,
+  columns,
+  emptyMessage = "Nothing here yet",
   keyExtractor,
   expandableContent,
-  onRowClick
+  onRowClick,
 }: AdminTableProps<T>) => {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
   const getKey = (item: T): string => {
-    if (typeof keyExtractor === 'function') {
+    if (typeof keyExtractor === "function") {
       return keyExtractor(item);
     }
     return String((item as Record<string, unknown>)[keyExtractor as string]);
@@ -38,116 +39,98 @@ const AdminTable = <T,>({
       return column.formatter(item);
     }
     const value = (item as Record<string, unknown>)[column.key as string];
-    return String(value || '');
+    return String(value || "");
   };
 
-  const handleRowClick = (item: T) => {
+  const toggle = (item: T) => {
     const itemKey = getKey(item);
-    
     if (expandableContent) {
-      setExpandedRows(prev => {
-        const newSet = new Set(prev);
-        if (newSet.has(itemKey)) {
-          newSet.delete(itemKey);
+      setExpandedRows((prev) => {
+        const next = new Set(prev);
+        if (next.has(itemKey)) {
+          next.delete(itemKey);
         } else {
-          newSet.add(itemKey);
+          next.add(itemKey);
         }
-        return newSet;
+        return next;
       });
     }
-    
-    if (onRowClick) {
-      onRowClick(item);
-    }
+    onRowClick?.(item);
   };
 
-  const isExpanded = (item: T): boolean => {
-    return expandedRows.has(getKey(item));
-  };
+  if (data.length === 0) {
+    return <p className="border-y border-graphite py-10 text-ash">{emptyMessage}</p>;
+  }
 
   return (
-    <div className="bg-white/5 rounded-lg border border-blue-500/20 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-blue-900/30">
-            <tr>
-              {expandableContent && (
-                <th className="px-6 py-3 w-8">
-                  {/* Expand/collapse column header */}
-                </th>
-              )}
-              {columns.map((column, index) => (
-                <th 
-                  key={index}
-                  className="px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider"
+    <div className="ff-scrollbar overflow-x-auto">
+      <table className="w-full border-collapse text-left">
+        <thead>
+          <tr className="border-b border-graphite">
+            {expandableContent && (
+              <th className="w-8 py-3">
+                <span className="sr-only">Details</span>
+              </th>
+            )}
+            {columns.map((column, index) => (
+              <th key={index} scope="col" className="py-3 pr-6 text-sm font-medium whitespace-nowrap text-ash">
+                {column.header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item) => {
+            const itemKey = getKey(item);
+            const expanded = expandedRows.has(itemKey);
+            const detailId = `detail-${itemKey}`;
+
+            return (
+              <Fragment key={itemKey}>
+                <tr
+                  className={`border-b border-graphite transition-colors ${
+                    expandableContent ? "cursor-pointer hover:bg-carbon" : ""
+                  } ${expanded ? "bg-carbon" : ""}`}
+                  onClick={() => toggle(item)}
                 >
-                  {column.header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-blue-700/30">
-            {data.map((item) => {
-              const itemKey = getKey(item);
-              const expanded = isExpanded(item);
-              
-              return (
-                <Fragment key={itemKey}>
-                  <tr 
-                    className={`hover:bg-blue-800/20 transition-colors ${
-                      expandableContent ? 'cursor-pointer' : ''
-                    } ${expanded ? 'bg-blue-800/10' : ''}`}
-                    onClick={() => handleRowClick(item)}
-                  >
-                    {expandableContent && (
-                      <td className="px-6 py-4 whitespace-nowrap w-8">
-                        <div className="flex items-center justify-center">
-                          <svg 
-                            className={`w-4 h-4 text-blue-300 transition-transform duration-200 ${
-                              expanded ? 'rotate-90' : ''
-                            }`}
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </td>
-                    )}
-                    {columns.map((column, index) => (
-                      <td 
-                        key={index}
-                        className={`px-6 py-4 whitespace-nowrap ${column.className || ''}`}
+                  {expandableContent && (
+                    <td className="w-8 py-3.5">
+                      <button
+                        type="button"
+                        aria-expanded={expanded}
+                        aria-controls={detailId}
+                        aria-label={expanded ? "Hide details" : "Show details"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggle(item);
+                        }}
+                        className="-ml-1 flex rounded-sm p-0.5 text-ash hover:text-chalk"
                       >
-                        {getValue(item, column)}
-                      </td>
-                    ))}
-                  </tr>
-                  {expandableContent && expanded && (
-                    <tr className="bg-blue-900/20">
-                      <td 
-                        colSpan={columns.length + 1} 
-                        className="px-6 py-4 border-t border-blue-700/30"
-                      >
-                        <div className="pl-4">
-                          {expandableContent(item)}
-                        </div>
-                      </td>
-                    </tr>
+                        <ChevronRightIcon
+                          className={`h-5 w-5 transition-transform duration-150 ${expanded ? "rotate-90" : ""}`}
+                        />
+                      </button>
+                    </td>
                   )}
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      
-      {data.length === 0 && (
-        <div className="p-8 text-center">
-          <p className="text-blue-200">{emptyMessage}</p>
-        </div>
-      )}
+                  {columns.map((column, index) => (
+                    <td key={index} className={`py-3.5 pr-6 whitespace-nowrap ${column.className || ""}`}>
+                      {getValue(item, column)}
+                    </td>
+                  ))}
+                </tr>
+                {expandableContent && expanded && (
+                  <tr id={detailId} className="border-b border-graphite bg-carbon">
+                    <td />
+                    <td colSpan={columns.length} className="pt-1 pr-6 pb-6">
+                      {expandableContent(item)}
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   );
 };

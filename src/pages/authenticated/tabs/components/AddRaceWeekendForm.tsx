@@ -1,4 +1,6 @@
 import { useState } from "react";
+import TextField from "../../../../shared/components/TextField";
+import FormActions, { FormError } from "../../../../shared/components/FormActions";
 import { createRaceWeekend, type CreateRaceWeekendRequest } from "../../../../api/raceWeekendApiClient";
 
 interface AddRaceWeekendFormProps {
@@ -18,6 +20,7 @@ interface FormErrors {
   raceLocation?: string;
   raceWeekendStartDate?: string;
   raceWeekendEndDate?: string;
+  general?: string;
 }
 
 const AddRaceWeekendForm = ({ onSuccess, onCancel }: AddRaceWeekendFormProps) => {
@@ -90,115 +93,55 @@ const AddRaceWeekendForm = ({ onSuccess, onCancel }: AddRaceWeekendFormProps) =>
       onSuccess();
     } catch (err) {
       console.error("Error creating race weekend:", err);
-      setErrors({ raceName: "Failed to create race weekend. Please try again." });
+      setErrors({ general: "The race weekend wasn't saved. Try again, and check the API logs if it keeps failing." });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="raceName" className="block text-sm font-medium text-blue-200 mb-2">
-          Race Name
-        </label>
-        <input
-          type="text"
-          id="raceName"
-          value={formData.raceName}
-          onChange={(e) => handleInputChange("raceName", e.target.value)}
-          className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.raceName 
-              ? "border-red-500 focus:ring-red-400" 
-              : "border-blue-400/30 focus:ring-blue-400"
-          }`}
-          placeholder="Enter race name..."
-        />
-        {errors.raceName && (
-          <p className="mt-1 text-red-300 text-xs">{errors.raceName}</p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="raceLocation" className="block text-sm font-medium text-blue-200 mb-2">
-          Race Location
-        </label>
-        <input
-          type="text"
-          id="raceLocation"
-          value={formData.raceLocation}
-          onChange={(e) => handleInputChange("raceLocation", e.target.value)}
-          className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.raceLocation 
-              ? "border-red-500 focus:ring-red-400" 
-              : "border-blue-400/30 focus:ring-blue-400"
-          }`}
-          placeholder="Enter race location..."
-        />
-        {errors.raceLocation && (
-          <p className="mt-1 text-red-300 text-xs">{errors.raceLocation}</p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="raceWeekendStartDate" className="block text-sm font-medium text-blue-200 mb-2">
-          Start Date
-        </label>
-        <input
-          type="date"
+    <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      <FormError message={errors.general} />
+      <TextField
+        id="raceName"
+        label="Race name"
+        placeholder="e.g. UNITED_STATES"
+        value={formData.raceName}
+        onChange={(e) => handleInputChange("raceName", e.target.value)}
+        error={errors.raceName}
+      />
+      <TextField
+        id="raceLocation"
+        label="Race location"
+        placeholder="Country code, e.g. US"
+        value={formData.raceLocation}
+        onChange={(e) => handleInputChange("raceLocation", e.target.value)}
+        error={errors.raceLocation}
+      />
+      <div className="grid grid-cols-2 gap-4">
+        <TextField
           id="raceWeekendStartDate"
+          label="First day"
+          type="date"
           value={formData.raceWeekendStartDate}
           onChange={(e) => handleInputChange("raceWeekendStartDate", e.target.value)}
-          className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.raceWeekendStartDate 
-              ? "border-red-500 focus:ring-red-400" 
-              : "border-blue-400/30 focus:ring-blue-400"
-          }`}
+          error={errors.raceWeekendStartDate}
         />
-        {errors.raceWeekendStartDate && (
-          <p className="mt-1 text-red-300 text-xs">{errors.raceWeekendStartDate}</p>
-        )}
-      </div>
-
-      <div>
-        <label htmlFor="raceWeekendEndDate" className="block text-sm font-medium text-blue-200 mb-2">
-          End Date
-        </label>
-        <input
-          type="date"
+        <TextField
           id="raceWeekendEndDate"
+          label="Last day"
+          type="date"
           value={formData.raceWeekendEndDate}
           onChange={(e) => handleInputChange("raceWeekendEndDate", e.target.value)}
-          className={`w-full px-3 py-2 bg-white/10 border rounded-lg text-white focus:outline-none focus:ring-2 focus:border-transparent ${
-            errors.raceWeekendEndDate 
-              ? "border-red-500 focus:ring-red-400" 
-              : "border-blue-400/30 focus:ring-blue-400"
-          }`}
+          error={errors.raceWeekendEndDate}
         />
-        {errors.raceWeekendEndDate && (
-          <p className="mt-1 text-red-300 text-xs">{errors.raceWeekendEndDate}</p>
-        )}
       </div>
-
-      <div className="flex justify-end gap-3 pt-4">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm rounded-lg transition-colors duration-150"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white text-sm rounded-lg transition-colors duration-150 flex items-center gap-2"
-        >
-          {loading && (
-            <div className="animate-spin inline-block h-4 w-4 border-2 border-t-white border-white/30 rounded-full"></div>
-          )}
-          {loading ? "Creating..." : "Create Race Weekend"}
-        </button>
-      </div>
+      <FormActions
+        submitLabel="Add race weekend"
+        submittingLabel="Adding race weekend…"
+        submitting={loading}
+        onCancel={onCancel}
+      />
     </form>
   );
 };
